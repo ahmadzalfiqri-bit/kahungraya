@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E⛰️%3C/text%3E%3C/svg%3E">
+<title>KAHUNG — Dashboard Pendakian Gunung Kahung</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eef2ee;--card:#fff;--ink:#15261f;--mute:#64756c;--line:#dde5df;--side:#12251e;--soft:#e9f1ec;--water:#bcd9ea;--mtn:#9db8a6;--mtn2:#7fa38c;--ground:#e4ebdf;
+--green:#16a34a;--blue:#2563eb;--amber:#d97706;--purple:#7c3aed;--teal:#0891b2;--rose:#e11d48}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1511;--card:#15231d;--ink:#e6eee9;--mute:#93a79c;--line:#25372e;--side:#09110d;--soft:#1c2d25;--water:#1d3a4d;--mtn:#2d4a3a;--mtn2:#3b6049;--ground:#13211a}}
+:root[data-theme="dark"]{--bg:#0c1511;--card:#15231d;--ink:#e6eee9;--mute:#93a79c;--line:#25372e;--side:#09110d;--soft:#1c2d25;--water:#1d3a4d;--mtn:#2d4a3a;--mtn2:#3b6049;--ground:#13211a}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;min-height:100vh}
+aside{width:210px;background:var(--side);color:#cfe0d6;flex:none;position:sticky;top:env(safe-area-inset-top,0px);align-self:flex-start;min-height:100vh;display:flex;flex-direction:column}
+.logo{padding:18px 16px;font-weight:800;color:#fff;font-size:17px;letter-spacing:.04em;border-bottom:1px solid #ffffff18}
+nav a{display:block;padding:12px 16px;color:#b9cdc1;text-decoration:none;cursor:pointer;border-left:3px solid transparent;font-size:14px}
+nav a.on{background:#ffffff14;color:#fff;border-left-color:#f0a24b}
+aside small{margin-top:auto;padding:16px;color:#7f968a;font-size:11px}
+main{flex:1;min-width:0;padding:22px 24px 48px;max-width:1100px}
+.sec{display:none}.sec.on{display:block}
+.hero{background:linear-gradient(135deg,#12342b,#1d6b4f);color:#fff;border-radius:16px;padding:26px 28px;position:relative;overflow:hidden}
+.hero::after{content:"⛰";position:absolute;right:18px;top:-6px;font-size:130px;opacity:.12}
+.hero .k{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#cfe0d6}
+.hero h1{margin:6px 0 2px;font-size:clamp(24px,4vw,32px);line-height:1.2}
+.hero h3{margin:0 0 10px;font-weight:600;font-size:17px}
+.hero p{margin:0 0 14px;max-width:640px;color:#e0ece5}
+.chips span{display:inline-block;border:1px solid #ffffff44;background:#ffffff14;border-radius:99px;padding:3px 11px;font-size:12px;margin:0 6px 6px 0}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:16px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.st{border-top:4px solid var(--c)}.st i{font-style:normal;font-size:22px}.st small{display:block;color:var(--mute);font-size:11px;letter-spacing:.05em;text-transform:uppercase;margin-top:4px}
+.st b{display:block;color:var(--c);font-size:21px}.st span{font-size:12px;color:var(--mute)}
+h2{font-size:18px;margin:26px 0 10px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.tabs button{border:0;background:var(--card);color:var(--ink);padding:7px 14px;border-radius:99px;cursor:pointer;font:inherit;font-size:13px;border:1px solid var(--line)}
+.tabs button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pil{border-left:4px solid var(--blue)}.pil h4{margin:0 0 6px;color:var(--blue)}.pil p{margin:0}
+.seg{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.seg .card{padding:0;overflow:hidden}.sh{background:var(--c);color:#fff;padding:12px 14px}.sh b{font-size:17px}.sh div{font-size:12px;opacity:.9}
+.sb{padding:12px 14px;font-size:13px}.sb small{color:var(--mute);display:block;margin-top:6px}
+.pot{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.pot .card{border-left:4px solid var(--c)}.pot b{color:var(--c)}.pot p{margin:4px 0 0;font-size:13px;color:var(--mute)}
+.mapwrap{display:grid;gap:12px;grid-template-columns:minmax(0,1fr) 270px}
+.map{padding:8px;position:relative}#map{height:min(78vh,640px);min-height:380px;border-radius:10px;z-index:0}.npin{background:#e11d48;color:#fff;border:2px solid #fff;border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font-size:11px;font-weight:700}
+.lay{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.lay button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:5px 11px;border-radius:8px;cursor:pointer;font:inherit;font-size:12px}.lay button.on{background:var(--side);color:#fff}
+.mk{cursor:pointer}.pn{fill:var(--rose)}
+.panel h4{margin:0 0 6px;font-size:14px}.panel .box{background:var(--soft);border-radius:10px;padding:10px;margin-bottom:10px;font-size:13px}
+.cats{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0}.cats button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:3px 9px;font-size:12px;cursor:pointer}.cats button.on{background:var(--green);color:#fff}
+textarea,input[type=number],input[type=date],select{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;padding:8px}
+.btn{border:0;background:var(--green);color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font:inherit;font-weight:600}.btn.g{background:var(--soft);color:var(--ink)}
+.note{border-bottom:1px solid var(--line);padding:6px 0;font-size:13px}.note button{float:right;border:0;background:none;color:var(--rose);cursor:pointer}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+summary{padding:13px 16px;cursor:pointer;font-weight:600;list-style:none;display:flex;gap:10px;align-items:center}
+summary::-webkit-details-marker{display:none}
+details .in{padding:0 16px 14px;color:var(--ink);font-size:14px}details ul{margin:6px 0;padding-left:20px}
+.badge{background:var(--c);color:#fff;border-radius:8px;width:30px;height:30px;display:grid;place-items:center;flex:none}
+.chk{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer}.chk input{width:18px;height:18px;accent-color:var(--green)}.chk.d span{text-decoration:line-through;color:var(--mute)}
+.bar{height:8px;background:var(--soft);border-radius:9px;overflow:hidden}.bar div{height:100%;background:var(--green)}
+.two{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.res{margin-top:12px;background:var(--soft);border-radius:10px;padding:10px 12px}
+.sub{color:var(--mute);font-size:12px}.gal{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.an{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}.an .im{height:110px;background:var(--soft);display:grid;place-items:center;font-size:40px}.an .im img{width:100%;height:100%;object-fit:cover;display:block}.an .tx{padding:8px 10px;font-size:13px}.an small{display:block;color:var(--mute);font-size:11px}.ch{display:inline-block;background:var(--soft);border-radius:99px;padding:4px 12px;margin:0 6px 6px 0;font-size:13px}.ch sup{color:var(--mute);font-size:9px}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}.fc{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}.fc .card{text-align:center;padding:12px 8px}.fc .card.on{outline:2px solid var(--blue)}.lay a{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:5px 11px;border-radius:8px;text-decoration:none;font-size:12px}
+@media (max-width:820px){body{display:block}aside{width:auto;min-height:0;position:static;flex-direction:row;overflow-x:auto}.logo{border:0;white-space:nowrap}nav{display:flex}nav a{white-space:nowrap;border-left:0;border-bottom:3px solid transparent}nav a.on{border-bottom-color:#f0a24b}aside small{display:none}main{padding:16px 14px 40px}.mapwrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<aside><div class="logo">⛰ KAHUNG</div>
+<nav><a data-s="ov" class="on">🏔 Overview</a><a data-s="pt">🗺 Peta</a><a data-s="cw">☁ Cuaca</a><a data-s="rt">🥾 Rute</a><a data-s="hl">🌳 Hutan Lestari</a><a data-s="dk">📊 Data Kawasan</a><a data-s="pr">🎒 Persiapan</a><a data-s="sf">🛡 Etika &amp; Aman</a><a data-s="qa">❓ Q&amp;A</a></nav>
+<small>Kontak: <a href="https://www.instagram.com/pokdarwis_kahung_raya/" target="_blank" rel="noopener" style="color:#f0a24b">@pokdarwis_kahung_raya</a><br>Konsep dashboard, bukan situs resmi.</small></aside>
+<main>
+
+<section class="sec on" id="ov">
+<div class="hero"><div class="k">Pegunungan Meratus · Kalimantan Selatan</div><h1>Hutan Lestari &amp; Pendakian Terpadu</h1><h3>Gunung Kahung — Puncak Selatan Meratus</h3>
+<p>Gunung Kahung adalah puncak tertinggi di gugusan ujung selatan Pegunungan Meratus, dalam kawasan Tahura Sultan Adam. Dashboard ini memadukan panduan pendakian dengan kerangka pengelolaan hutan lestari: zonasi, wisata berkuota, pemberdayaan masyarakat, dan monitoring.</p>
+<div class="chips"><span>✓ 1.456 mdpl</span><span>✓ 6 pos resmi</span><span>✓ Tahura Sultan Adam</span><span>✓ Wisata berbasis masyarakat</span><span>✓ Jalur terbuka (kecuali kegiatan/pemeliharaan)</span><span>📷 <a href="https://www.instagram.com/pokdarwis_kahung_raya/" target="_blank" rel="noopener" style="color:#f0a24b">@pokdarwis_kahung_raya</a></span></div></div>
+<div class="grid" id="stats"></div>
+<h2>🌳 Lima Pilar Pengelolaan Hutan Lestari</h2><div class="tabs" id="ptabs"></div><div class="card pil" id="pbody"></div>
+<h2>🪜 Komposisi Segmen Jalur</h2><div class="seg" id="segs"></div>
+<h2>🌿 Jasa Lingkungan &amp; Potensi</h2><div class="card" style="background:var(--soft);margin-bottom:12px">Nilai ekonomi kawasan sebaiknya tumbuh tanpa mengorbankan fungsi ekologisnya: wisata alam, jasa lingkungan, dan edukasi dikelola bersama masyarakat Meratus sebagai tuan rumah. Besaran manfaat perlu dikaji lewat survei, bukan diasumsikan.</div>
+<div class="pot" id="pot"></div>
+</section>
+
+<section class="sec" id="pt">
+<div class="hero" style="padding:18px 22px"><h1 style="font-size:22px">🗺 Peta Jalur Kahung</h1><p style="margin:0">Posisi titik dari Peta Jalur Pendakian Gunung Kahung (Indogis.ID &amp; Gunung Bagging, 2020.1), dibaca dari grid peta. Ganti peta dasar (topografi, OSM, satelit) lewat ikon lapisan di kanan atas peta. Klik penanda untuk info, klik area kosong untuk catatan lapangan.</p></div>
+<div class="lay" style="margin-top:12px" id="lay"></div>
+<div class="lay"><a href="https://www.openstreetmap.org/?mlat=-3.6904&amp;mlon=115.0304#map=13/-3.6904/115.0304" target="_blank" rel="noopener">🌐 OpenStreetMap ↗</a><a href="https://www.google.com/maps?q=-3.6904,115.0304" target="_blank" rel="noopener">📍 Google Maps ↗</a></div>
+<div class="mapwrap"><div class="card map"><div id="map"></div></div>
+<div class="card panel"><h4>📍 Info titik</h4><div class="box" id="info">Klik penanda di peta.</div>
+<div id="form" style="display:none"><h4>Catatan baru</h4><div class="sub" id="crd"></div><div class="cats" id="cats"></div><textarea id="txt" rows="3" placeholder="Kondisi lapangan…"></textarea><div style="margin-top:8px;display:flex;gap:8px"><button class="btn" id="sv">Simpan</button><button class="btn g" id="cn">Batal</button></div></div>
+<h4>📝 Catatan</h4><div id="nl" class="sub">Belum ada catatan.</div></div></div>
+</section>
+
+<section class="sec" id="rt">
+<div class="hero" style="padding:18px 22px"><h1 style="font-size:22px">🥾 Rute &amp; Segmen Jalur</h1><p style="margin:0">Dari Belangian (71 mdpl) ke puncak (1.456 mdpl) melewati 6 pos. Waktu tempuh total tidak tercantum di peta — tanyakan ke Pokdarwis.</p></div>
+<div class="card" style="margin-top:14px"><h4 style="margin:0 0 6px">📈 Profil ketinggian (jarak tidak berskala)</h4><svg id="prof" viewBox="0 0 600 200" style="width:100%;height:auto"></svg></div><div style="margin-top:14px" id="acc"></div><h2>📍 Titik &amp; Koordinat</h2><div class="card" style="overflow-x:auto"><table id="wt"></table></div>
+</section>
+
+<section class="sec" id="cw">
+<div class="hero" style="padding:18px 22px"><h1 style="font-size:22px">☁ Cuaca &amp; Suhu</h1><p style="margin:0">Data langsung dari Open-Meteo untuk titik Kahung, dengan koreksi suhu sesuai ketinggian tiap pos. Tetap cek BMKG atau Windy sebelum berangkat.</p></div>
+<div class="lay" style="margin-top:12px"><span id="wst" class="sub" style="align-self:center"></span><button id="wrf">⟳ Perbarui</button></div>
+<div class="grid" style="margin-top:6px" id="nowc"></div>
+<h2>📅 Prakiraan 8 Hari</h2><div class="fc" id="fc"></div>
+<div class="card" style="margin-top:12px;border-left:4px solid var(--blue)" id="adv"></div>
+<h2>🌡 Perkiraan Suhu per Pos</h2>
+<div class="card" style="overflow-x:auto"><table id="et"></table><div class="sub" style="margin-top:8px">Hari terpilih mengikuti kartu di atas. Suhu tiap pos dihitung model Open-Meteo untuk ketinggiannya (koreksi statistik, bukan pengukuran di lapangan).</div></div>
+<div class="lay" style="margin-top:12px"><a href="https://www.bmkg.go.id/" target="_blank" rel="noopener">BMKG ↗</a><a href="https://www.windy.com/-3.690/115.030?-3.690,115.030,11" target="_blank" rel="noopener">Windy ↗</a></div>
+</section>
+
+<section class="sec" id="dk">
+<div class="hero" style="padding:18px 22px"><h1 style="font-size:22px">📊 Data Kawasan</h1><p style="margin:0">Luasan, tutupan vegetasi, flora–fauna, dan ekowisata untuk masyarakat. Setiap angka disertai sumber; yang belum ada datanya ditandai jelas.</p></div>
+<div class="card" style="margin-top:14px;background:var(--soft)">⚠ Belum ditemukan data resmi <b>khusus Hutan/Gunung Kahung</b> untuk luas, tutupan, maupun pendapatan warga. Angka di bawah adalah konteks kawasan yang lebih luas atau data dari media dan jurnal. Verifikasi dengan Pokdarwis, BUMDes, atau pengelola Tahura sebelum dipublikasikan.</div>
+<h2>📐 Luasan &amp; Wilayah</h2><div class="grid" id="lu" style="margin-top:0"></div>
+<h2>🌲 Tutupan Lahan — Tahura Sultan Adam</h2>
+<div class="card"><div id="tc"></div><div class="sub" style="margin-top:6px"><span style="color:var(--amber)">▬</span> 2013 &nbsp; <span style="color:var(--green)">▬</span> 2016 (persen dari area analisis ±117.900 ha)</div>
+<div class="sub" style="margin-top:8px">Sumber: Fuady dkk. (2018), Jurnal Sylva Scienteae 1(2), citra Landsat 8 tanggal 19 Jun 2013 dan 9 Apr 2016. Cakupannya seluruh Tahura, <b>bukan hanya Kahung</b>, dan datanya sudah lebih dari 10 tahun. Citra memuat awan, dan penulis mencatat perambahan sebagai tekanan di kawasan. Untuk Kahung perlu analisis tutupan terbaru (mis. citra Sentinel-2) atau survei lapangan.</div></div>
+<h2>🌿 Flora &amp; Fauna</h2>
+<div class="two"><div class="card"><h4 style="margin:0 0 8px">🌳 Flora</h4><div id="fl"></div></div></div><div class="card" style="margin-top:12px"><h4 style="margin:0 0 8px">🐾 Fauna</h4><div class="gal" id="fa"></div><div class="sub" style="margin-top:8px">Gambar dimuat dari Wikipedia/Wikimedia Commons saat halaman dibuka (lisensi tertera di halaman sumber) dan bersifat ilustrasi jenis, bukan foto dari Kahung. Jika tidak ada koneksi, tampil ikon.</div></div>
+<div class="sub" style="margin-top:6px"><sup>G</sup> = situs geosite Kahung, Meratus Geopark · <sup>P</sup> = Pemkab Banjar (SI-PRASWITA) · <sup>A</sup> = ANTARA/RRI (Jun 2026, riset tim ULM). Daftar ini dari dokumen promosi, bukan inventarisasi ilmiah; jenis lain perlu survei (jalur transek, kamera trap).</div>
+<h2>💰 Ekowisata untuk Masyarakat</h2><div class="pot" id="ek"></div>
+<div class="card" style="margin-top:12px;border-left:4px solid var(--rose)"><b>Total pendapatan warga per tahun: belum dipublikasikan.</b> <span class="sub">Tidak ditemukan angka resmi untuk Kahung atau Belangian. Gunakan simulasi di bawah, dan catat realisasi lewat Papan Monitor di menu Hutan Lestari.</span></div>
+<h2>🧮 Simulasi Pendapatan (bukan data realisasi)</h2>
+<div class="two"><div class="card"><label class="sub">Pengunjung per bulan (asumsi)<input type="number" id="simv" min="0" value="100"></label><label class="sub" style="display:block;margin-top:8px">Yang menginap di homestay (%)<input type="number" id="simh" min="0" max="100" value="50"></label><label class="sub" style="display:block;margin-top:8px">Rata-rata malam menginap<input type="number" id="simm" min="0" value="1"></label><label class="sub" style="display:block;margin-top:8px">Simaksi per orang (Rp)<input type="number" id="simt" min="0" step="1000" value="10000"></label><label class="sub" style="display:block;margin-top:8px">Tarif homestay per malam (Rp), 2024<input type="number" id="simk" min="0" step="1000" value="100000"></label><label class="sub" style="display:block;margin-top:8px">Tarif kapal Dermaga Riam–Belangian, pulang-pergi (Rp)<input type="number" id="simb" min="0" step="1000" value="50000"></label><label class="sub" style="display:block;margin-top:8px">Tarif ojek basecamp–Pintu Rimba, pulang-pergi (Rp)<input type="number" id="simo" min="0" step="1000" value="100000"></label></div>
+<div class="card"><h4 style="margin:0 0 8px">Hasil simulasi</h4><div class="res" id="sr"></div><div class="sub" style="margin-top:8px">Jumlah pengunjung adalah asumsi, bukan data. Tarif kapal dan ojek dihitung per orang pulang-pergi; ubah bila dihitung per kapal atau per ojek. Pembagian pemasukan ke warga atau BUMDes belum diketahui.</div></div></div>
+<h2>📚 Sumber</h2><div class="card"><ul class="n" id="src"></ul></div>
+</section>
+
+<section class="sec" id="hl">
+<div class="hero" style="padding:18px 22px"><h1 style="font-size:22px">🌳 Konsep Pengelolaan Hutan Lestari</h1><p style="margin:0">Kerangka usulan agar pendakian Kahung berjalan seiring dengan menjaga hutan, air, dan penghidupan warga.</p></div>
+<div class="card" style="margin-top:14px;background:var(--soft)">Halaman ini berisi <b>konsep dan alat bantu</b>, bukan zonasi atau aturan resmi. Zonasi, kuota, dan target ditetapkan bersama pengelola kawasan, Pokdarwis, dan masyarakat setempat.</div>
+<h2>🗺 Zonasi Konsep</h2><div class="seg" id="zn"></div>
+<h2>🛣 Roadmap Pengelolaan</h2><div id="rm"></div>
+<h2>📊 Indikator Keberhasilan</h2><div class="pot" id="ik"></div>
+<h2>📝 Papan Monitor Lapangan</h2>
+<div class="two"><div class="card"><h4 style="margin:0 0 8px">Catat kunjungan</h4><label class="sub">Tanggal<input type="date" id="md"></label><label class="sub" style="display:block;margin-top:8px">Jumlah pendaki<input type="number" id="mp" min="1" value="4"></label><label class="sub" style="display:block;margin-top:8px">Sampah dibawa turun (kg)<input type="number" id="ms" min="0" step="0.5" value="1"></label><label class="sub" style="display:block;margin-top:8px">Pemasukan warga hari itu (Rp)<input type="number" id="mr" min="0" step="1000" value="0"></label><label class="sub" style="display:block;margin-top:8px">Kondisi jalur<select id="mk"><option>Baik</option><option>Perlu perawatan</option><option>Rawan</option></select></label><button class="btn" id="ma" style="margin-top:10px">Simpan</button></div>
+<div class="card"><h4 style="margin:0 0 8px">Ringkasan</h4><div id="msum"></div><div id="mlog" style="margin-top:8px"></div><div class="sub" style="margin-top:8px">Contoh alat bantu; data hanya tersimpan di perangkat ini.</div></div></div>
+</section>
+
+<section class="sec" id="pr">
+<div class="hero" style="padding:18px 22px"><h1 style="font-size:22px">🎒 Persiapan &amp; Logistik</h1><p style="margin:0">Checklist perlengkapan dan perencana kebutuhan dasar tim.</p></div>
+<div class="card" style="margin-top:14px;border-left:4px solid var(--amber)"><b>📞 Kontak &amp; info jalur:</b> Pokdarwis Kahung Raya — Instagram <a href="https://www.instagram.com/pokdarwis_kahung_raya/" target="_blank" rel="noopener" style="color:var(--amber)">@pokdarwis_kahung_raya</a>. Jalur terbuka untuk umum, kecuali saat ada kegiatan tertentu atau pemeliharaan. Cek status jalur ke Pokdarwis sebelum berangkat.</div><div class="two" style="margin-top:14px"><div class="card"><h4 style="margin:0 0 8px">Checklist perlengkapan</h4><div class="bar"><div id="pf" style="width:0"></div></div><div class="sub" id="pc" style="margin:4px 0"></div><div id="cl"></div></div>
+<div class="card"><h4 style="margin:0 0 8px">Perencana logistik</h4><label class="sub">Jumlah pendaki<input type="number" id="pp" min="1" value="4"></label><label class="sub" style="display:block;margin-top:8px">Lama (hari)<input type="number" id="dd" min="1" max="7" value="2"></label><div class="res" id="rs"></div><div class="sub" style="margin-top:6px">Patokan umum, bukan standar resmi.</div></div></div>
+</section>
+
+<section class="sec" id="sf">
+<div class="hero" style="padding:18px 22px"><h1 style="font-size:22px">🛡 Etika &amp; Keselamatan</h1><p style="margin:0">Mendaki dengan hormat kepada alam dan masyarakat setempat.</p></div>
+<div class="pot" style="margin-top:14px" id="saf"></div>
+</section>
+
+<section class="sec" id="qa">
+<div class="hero" style="padding:18px 22px"><h1 style="font-size:22px">❓ Pertanyaan Umum</h1></div>
+<div style="margin-top:14px" id="faq"></div>
+</section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+var $=function(s){return document.querySelector(s)},$$=function(s){return[].slice.call(document.querySelectorAll(s))};
+function go(id){$$('.sec').forEach(function(s){s.classList.toggle('on',s.id===id)});$$('nav a').forEach(function(a){a.classList.toggle('on',a.dataset.s===id)});window.scrollTo(0,0);if(id==="pt"&&window.mapFit)setTimeout(mapFit,60)}
+$$('nav a').forEach(function(a){a.onclick=function(){go(a.dataset.s)}});
+var S=[['🏔','Puncak Kahung','1.456 mdpl','Titik tertinggi jalur','--blue'],['🚩','Titik awal','71 mdpl','Belangian trailhead','--green'],['📈','Selisih tinggi','±1.385 m','Belangian → puncak','--amber'],['⛺','Pos resmi','6 pos','Pos 1 – Pos 6 + puncak','--purple'],['🌳','Zonasi konsep','3 zona','Lindung · wisata · penyangga','--teal'],['⛅','Suhu sekarang','…','Memuat data cuaca','--rose']];
+function rs(){$('#stats').innerHTML=S.map(function(s){return'<div class="card st" style="--c:var('+s[4]+')"><i>'+s[0]+'</i><small>'+s[1]+'</small><b>'+s[2]+'</b><span>'+s[3]+'</span></div>'}).join('')}rs();
+var PL=[['01','Tata Ruang & Zonasi','Bagi kawasan menjadi zona perlindungan, wisata terbatas, dan penyangga. Pendakian hanya lewat jalur resmi dan camp di pos yang ditetapkan, agar tapak kaki dan tenda tidak menyebar ke hutan.'],['02','Konservasi & Tata Air','Jaga tutupan hutan di hulu sungai dan sumber air pos. Hindari sabun, deterjen, atau limbah di sungai; peta memperlihatkan jalur melintasi banyak sungai di selatan Waduk Riamkanan.'],['03','Wisata Berkuota','Batasi jumlah pendaki per hari sesuai daya dukung yang disepakati pengelola. Pendaftaran, briefing, dan pemandu lokal membantu memantau serta mengurangi dampak.'],['04','Pemberdayaan Masyarakat','Pokdarwis Kahung Raya dan warga sekitar jadi pelaku utama: pemandu, ojek, kuliner, dan homestay. Manfaat wisata kembali ke desa yang menjaga hutan.'],['05','Monitoring & Restorasi','Catat pengunjung, sampah, kondisi jalur, dan air secara rutin. Titik rusak dipulihkan dengan jenis tumbuhan lokal, lalu aturan disesuaikan dengan hasil pemantauan.']];
+$('#ptabs').innerHTML=PL.map(function(p,i){return'<button data-i="'+i+'" class="'+(i?'':'on')+'">'+p[0]+'</button>'}).join('');
+function pil(i){$('#pbody').innerHTML='<h4>Pilar '+PL[i][0]+': '+PL[i][1]+'</h4><p>'+PL[i][2]+'</p>';$$('#ptabs button').forEach(function(b,j){b.classList.toggle('on',i===j)})}
+$('#ptabs').onclick=function(e){if(e.target.dataset.i)pil(+e.target.dataset.i)};pil(0);
+var SG=[['1','Belangian → Pintu Rimba','71 → 168 m · jalan cor beberapa km','--blue','Jalan cor terbuka dan terik di elevasi rendah, melewati jembatan dan shelter sebelum masuk hutan.',['Ojek basecamp–Pintu Rimba Rp100.000 pulang-pergi; menghemat sekitar satu jam jalan kaki','Ambil kiri di pertigaan pertama','Bawa topi dan air'],'Belangian 71 m · Red White Bridge 77 m · Pos 1 Shelter Kembar 107 m · Pintu Rimba 168 m'],['2','Pintu Rimba → Pos 2 Muara Kahung','168 → 181 m · ±1 jam relatif datar','--green','Menyusuri sisi sungai dengan beberapa penyeberangan anak sungai.',['Cek debit sungai setelah hujan','Muara Kahung: pertemuan Sungai Kahung dan Kala’an','Pos 2 ditandai camp spot dengan sumber air'],'Stream 1 217 m · Stream 2 191 m · Pos 2 Muara Kahung 181 m'],['3','Pos 2 → Pos 4 Sakatalu','181 → 580 m · mulai menanjak','--amber','Jalur mulai naik melewati sungai, camp Cemara, dan air terjun.',['Isi air di Pos 3 atau Pos 4 sebelum menanjak','Pos 3 Cemara ditandai camp spot dengan air'],'River 275 m · Cross stream 3 321 m · Pos 3 Cemara 334 m · Waterfall 528 m · Pos 4 Sakatalu 580 m'],['4','Pos 4 → Puncak Kahung','580 → 1.456 m · tanjakan puncak','--purple','Pos 5 dan Pos 6 ada di punggungan menuju puncak; panorama ke Kahung Besar terbuka sekitar 1.100 m.',['Pos 5 Alimatak dan Pos 6 Amazon ditandai camp spot dengan air','Turun sebelum gelap','Jangan tinggalkan sampah di puncak'],'Pos 5 Alimatak 734 m · Pos 6 Amazon 924 m · Puncak Kahung 1.456 m']];
+$('#segs').innerHTML=SG.map(function(s){return'<div class="card" style="--c:var('+s[3]+')"><div class="sh"><b>Segmen '+s[0]+'</b><div>'+s[1]+'</div></div><div class="sb">'+s[4]+'<small>'+s[2]+'</small></div></div>'}).join('');
+$('#acc').innerHTML=SG.map(function(s,i){return'<details'+(i?'':' open')+' style="--c:var('+s[3]+')"><summary><span class="badge">'+s[0]+'</span><span>'+s[1]+'<div class="sub" style="font-weight:400">'+s[2]+'</div></span></summary><div class="in"><p>'+s[4]+'</p><p class="sub">📍 '+s[6]+'</p><b>Tips</b><ul>'+s[5].map(function(t){return'<li>'+t+'</li>'}).join('')+'</ul></div></details>'}).join('');
+var PO=[['💧','Tata air','--teal','Hutan hulu menjaga aliran dan kualitas air sungai.'],['🌿','Keanekaragaman hayati','--green','Habitat flora dan fauna khas hutan hujan pegunungan.'],['🌲','Simpanan karbon','--purple','Tegakan hutan menyimpan karbon; besarannya perlu diukur lewat survei.'],['🥾','Wisata minat khusus','--blue','Pendakian berkuota yang dikelola Pokdarwis dan warga.'],['📚','Edukasi & riset','--amber','Belajar ekologi Meratus dan praktik konservasi.']];
+$('#pot').innerHTML=PO.map(function(p){return'<div class="card" style="--c:var('+p[2]+')"><div>'+p[0]+'</div><b>'+p[1]+'</b><p>'+p[3]+'</p></div>'}).join('');
+var SF=[['📋','Cek status jalur','--rose','Jalur terbuka untuk umum, kecuali saat ada kegiatan tertentu atau pemeliharaan. Cek status ke Pokdarwis Kahung Raya sebelum berangkat.'],['🤝','Hormati warga','--green','Ikuti aturan setempat dan hormati tempat yang dikeramatkan.'],['🌳','Lindungi flora & fauna','--teal','Jangan menebang, memetik, atau membawa pulang tumbuhan dan satwa; jangan memberi makan satwa.'],['🔥','Cegah kebakaran','--amber','Jangan buang puntung rokok. Pakai kompor, bukan api unggun, kecuali diizinkan pengelola.'],['💧','Jaga sungai','--blue','Jangan pakai sabun atau buang limbah di sungai dan sumber air.'],['♻','Bawa sampah','--purple','Bawa kembali semua sampah yang dibawa naik.'],['📞','Lapor rencana','--rose','Beri tahu orang di luar tim tentang rute dan jam kembali.']];
+$('#saf').innerHTML=SF.map(function(p){return'<div class="card" style="--c:var('+p[2]+')"><div style="font-size:22px">'+p[0]+'</div><b>'+p[1]+'</b><p>'+p[3]+'</p></div>'}).join('');
+var FQ=[['Siapa yang bisa dihubungi untuk info jalur dan pemandu?','Pokdarwis Kahung Raya lewat Instagram @pokdarwis_kahung_raya. Jalur terbuka untuk umum, kecuali saat ada kegiatan tertentu atau pemeliharaan, jadi cek status jalur sebelum berangkat.'],['Berapa lama pendakiannya?','Waktu total tidak tercantum di peta. Dari Pintu Rimba ke Pos 2 sekitar satu jam (GunungBagging); ANTARA menyebut sekitar enam jam jalan kaki untuk mencapai kawasan air terjun. Waktu ke puncak tanyakan ke Pokdarwis.'],['Apakah ada sumber air di jalur?','Peta menandai sumber air di Pos 2, 3, 4, 5, dan 6. Tetap bawa pengolah air dan cek kondisi terbaru.'],['Di mana bisa berkemah?','Peta menandai camp spot di Pos 2 Muara Kahung, Pos 3 Cemara, Pos 5 Alimatak, dan Pos 6 Amazon.'],['Dari mana data peta ini?','Peta Jalur Pendakian Gunung Kahung (2020.1) oleh Indogis.ID bersama Gunung Bagging, basemap BIG. Koordinat di situs ini dibaca dari grid peta, perkiraan yang bisa meleset beberapa ratus meter.']];
+FQ.push(['Mengapa perlu kuota dan zonasi?','Hutan dan sungai punya batas daya tahan. Kuota dan zona mengurangi kerusakan jalur, sampah, dan gangguan satwa; angkanya harus ditetapkan pengelola berdasarkan kajian.'],['Apakah zonasi di situs ini resmi?','Bukan. Zonasi di halaman Hutan Lestari adalah konsep usulan. Aturan resmi ditetapkan oleh pengelola kawasan bersama masyarakat.']);
+FQ.push(['Bagaimana menuju Belangian?','Dari Banjarmasin sekitar 1–2 jam lewat darat ke dermaga Waduk Riam Kanan (Dermaga Riam; satu sumber menyebut Dermaga Bukit Batu), lalu naik kapal atau kelotok sekitar 1 jam ke Desa Belangian (Koran Kaltara, 2024). Tarif kapal Rp50.000 pulang-pergi (info lokal). Hubungi Pokdarwis untuk jadwal.'],['Berapa tinggi puncaknya?','Situs ini memakai 1.456 mdpl (rujukan Geopark Meratus dan media). Peta jalur 2020 dan GunungBagging mencatat 1.285 mdpl, jadi selisihnya perlu diverifikasi. Profil ketinggian dan perkiraan suhu puncak mengikuti angka 1.456 mdpl.'],['Berapa biaya masuk dan menginap?','Kapal dari Dermaga Riam ke Belangian Rp50.000 pulang-pergi; ojek basecamp–Pintu Rimba Rp100.000 pulang-pergi (info lokal). Simaksi Rp10.000 per orang (info lokal) dan homestay Rp100.000 per malam (2024). Tarif bisa berubah, konfirmasi ke Pokdarwis.']);
+$('#faq').innerHTML=FQ.map(function(q){return'<details><summary>'+q[0]+'</summary><div class="in">'+q[1]+'</div></details>'}).join('');
+var K=[['Perlengkapan: sepatu anti-selip'],['Jas hujan & dry bag'],['Headlamp + baterai cadangan'],['Botol air & purifikasi'],['Pakaian ganti kering'],['P3K pribadi'],['Bekal & snack'],['Kantong sampah'],['Peta offline & power bank']];K[0]=['Sepatu/sandal anti-selip'];
+var ck={};try{ck=JSON.parse(localStorage.getItem('kh_ck')||'{}')}catch(e){}
+function dc(){var n=0;$('#cl').innerHTML=K.map(function(t,i){if(ck[i])n++;return'<label class="chk'+(ck[i]?' d':'')+'"><input type="checkbox" data-i="'+i+'"'+(ck[i]?' checked':'')+'><span>'+t[0]+'</span></label>'}).join('');$('#pf').style.width=n/K.length*100+'%';$('#pc').textContent=n+' dari '+K.length+' siap'}
+$('#cl').onchange=function(e){ck[e.target.dataset.i]=e.target.checked;try{localStorage.setItem('kh_ck',JSON.stringify(ck))}catch(x){}dc()};dc();
+function calc(){var p=Math.max(1,+$('#pp').value||1),d=Math.max(1,+$('#dd').value||1);$('#rs').innerHTML='Air minum: <b>'+p*d*2+'–'+p*d*3+' liter</b><br>Makan: <b>'+p*d*3+' porsi</b> + cadangan<br>Tenda: <b>'+Math.ceil(p/3)+'</b> (3 orang/tenda)'}
+$('#pp').oninput=calc;$('#dd').oninput=calc;calc();
+/* MAP */
+var PT=[['j',400,47,'Belangian trailhead',71,-13,4,'end','Titik awal pendakian.'],['j',325,108,'Red White Bridge',77,13,4,'start','Jembatan di awal jalur.'],['p',236,195,'Pos 1 Shelter Kembar',107,13,4,'start','Shelter pertama.'],['j',220,232,'Pintu Rimba',168,13,4,'start','Gerbang masuk hutan.'],['p',154,309,'Pos 2 Muara Kahung',181,13,4,'start','Pertemuan Sungai Kahung dan Kala’an. Camp spot dengan sumber air.'],['j',132,423,'River',275,-13,4,'end','Penyeberangan sungai.'],['p',141,475,'Pos 3 Cemara',334,13,4,'start','Camp spot dengan sumber air.'],['j',122,566,'Waterfall',528,-13,4,'end','Air terjun di jalur.'],['p',125,585,'Pos 4 Sakatalu',580,-13,4,'end','Pos dengan sumber air.'],['p',156,590,'Pos 5 Alimatak',734,-6,22,'end','Camp spot dengan sumber air.'],['p',186,605,'Pos 6 Amazon',924,-2,22,'start','Camp spot dengan sumber air.'],['m',228,585,'Puncak Kahung',1456,13,4,'start','Puncak tertinggi gugusan Kahung.'],['m',60,620,'Kahung Besar',1240,-50,22,'start','Puncak tetangga, di luar jalur resmi.']];
+function LL(x,y){return[-(3+(33+(y-118)/97)/60),114+(58+(x-48)/96.75)/60]}
+var LY=[['j','Jalur',1],['p','Pos',1],['m','Puncak',1],['n','Catatan',1]],ly={};LY.forEach(function(l){ly[l[0]]=1});
+var CT=['Jalur','Air','Pemandangan','Bahaya','Lainnya'],ct=0,dr=null,NT=[];try{NT=JSON.parse(localStorage.getItem('kh_nt')||'[]')}catch(e){}
+var map=null,mapFitted=false,bnds=null,ovl=null,WPT=[];
+function pll(p){return LL(p[1]+190,p[2]+350)}
+function showInfo(i){var p=PT[i],c=pll(p);$('#info').innerHTML='<b>'+p[3]+'</b><br>Tinggi '+p[4].toLocaleString('id-ID')+' mdpl<br>'+c[0].toFixed(4)+', '+c[1].toFixed(4)+'<br>'+p[8]+'<br><a href="'+osm(c)+'" target="_blank" rel="noopener" style="color:var(--blue)">Buka di OpenStreetMap ↗</a>'}
+function initMap(){
+if(!window.L){$('#map').innerHTML='<div class="sub" style="padding:20px">Leaflet gagal dimuat. Periksa koneksi internet lalu muat ulang.</div>';return}
+var topo=L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'&copy; OpenStreetMap, SRTM | &copy; OpenTopoMap'}),
+osmL=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}),
+sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18,attribution:'Tiles &copy; Esri'});
+map=L.map('map',{layers:[topo]}).setView([-3.66,115.03],12);
+L.control.layers({'Topografi':topo,'OpenStreetMap':osmL,'Satelit':sat}).addTo(map);
+L.control.scale({imperial:false}).addTo(map);
+ovl=L.layerGroup().addTo(map);bnds=L.latLngBounds(PT.map(pll));
+map.on('click',function(e){dr={la:e.latlng.lat,lo:e.latlng.lng};$('#crd').textContent='Koordinat ≈ '+dr.la.toFixed(5)+', '+dr.lo.toFixed(5);$('#form').style.display='block';cats();svg()});
+map.on('zoomend',svg)}
+window.mapFit=function(){if(!map)return;map.invalidateSize();if(!mapFitted){map.fitBounds(bnds,{padding:[24,24]});mapFitted=true}};
+function svg(){if(!map)return;ovl.clearLayers();var z=map.getZoom();
+if(ly.j)[[0,3,'#2563eb'],[3,4,'#16a34a'],[4,8,'#d97706'],[8,11,'#7c3aed']].forEach(function(r){var a=[];for(var i=r[0];i<=r[1];i++)a.push(pll(PT[i]));L.polyline(a,{color:r[2],weight:5,opacity:.9}).addTo(ovl)});
+PT.forEach(function(p,i){if(!ly[p[0]])return;var c=p[0]=='m'?'#7c3aed':p[0]=='p'?'#16a34a':'#2563eb';
+L.circleMarker(pll(p),{radius:p[0]=='p'?8:p[0]=='m'?9:6,color:'#fff',weight:2,fillColor:c,fillOpacity:1,bubblingMouseEvents:false}).addTo(ovl).bindTooltip(p[3]+' ('+p[4].toLocaleString('id-ID')+' m)',{permanent:z>=14||p[0]=='m',direction:'right',offset:[8,0]}).on('click',function(){showInfo(i)})});
+if(ly.n)NT.forEach(function(n,i){L.marker([n.la,n.lo],{icon:L.divIcon({className:'',html:'<div class="npin">'+(i+1)+'</div>',iconSize:[22,22]})}).addTo(ovl)});
+if(dr)L.circleMarker([dr.la,dr.lo],{radius:9,color:'#e11d48',weight:3,dashArray:'3 3',fillOpacity:0}).addTo(ovl)}
+function prof(){var E=[['Belangian',71],['RW Bridge',77],['Pos 1',107],['Pintu Rimba',168],['Stream 1',217],['Stream 2',191],['Pos 2',181],['River',275],['Cross 3',321],['Pos 3',334],['Waterfall',528],['Pos 4',580],['Pos 5',734],['Pos 6',924],['Puncak',1456]],W=600,H=200,px=30,py=20,s='',d='';
+E.forEach(function(e,i){var x=px+i*(W-2*px)/(E.length-1),y=H-py-e[1]/1456*(H-2*py-10);d+=x+','+y+' ';s+='<circle cx="'+x+'" cy="'+y+'" r="3.5" fill="var(--amber)"/>';if(/^(Pos|Bel|Pun|Wat)/.test(e[0]))s+='<text x="'+x+'" y="'+(H-6)+'" font-size="9" text-anchor="middle" fill="var(--ink)">'+e[0]+'</text><text x="'+x+'" y="'+(y-8)+'" font-size="9" text-anchor="middle" fill="var(--mute)">'+e[1]+'</text>'});
+$('#prof').innerHTML='<polygon points="'+px+','+(H-py)+' '+d+(W-px)+','+(H-py)+'" fill="var(--soft)"/><polyline points="'+d+'" fill="none" stroke="var(--amber)" stroke-width="2.5"/>'+s}
+function wt(){$('#wt').innerHTML='<tr><th>Titik</th><th>Tinggi</th><th>Lat</th><th>Lon</th><th>Peta</th></tr>'+PT.map(function(p){var c=LL(p[1]+190,p[2]+350);return'<tr><td>'+p[3]+'</td><td>'+p[4].toLocaleString('id-ID')+' m</td><td>'+c[0].toFixed(4)+'</td><td>'+c[1].toFixed(4)+'</td><td><a href="'+osm(c)+'" target="_blank" rel="noopener" style="color:var(--blue)">OSM ↗</a></td></tr>'}).join('')+'<tr><td colspan="5" class="sub">Dibaca dari grid peta; perkiraan yang bisa meleset beberapa ratus meter. Verifikasi dengan GPS.</td></tr>'}
+function nl(){$('#nl').innerHTML=NT.length?NT.map(function(n,i){return'<div class="note"><button data-d="'+i+'">✕</button><b>'+(i+1)+'. '+n.c+'</b><br>'+n.t.replace(/</g,'&lt;')+'</div>'}).join(''):'Belum ada catatan.'}
+$('#lay').innerHTML=LY.map(function(l){return'<button class="on" data-k="'+l[0]+'">'+l[1]+'</button>'}).join('');
+$('#lay').onclick=function(e){var k=e.target.dataset.k;if(!k)return;ly[k]=!ly[k];e.target.classList.toggle('on',!!ly[k]);svg()};
+function cats(){$('#cats').innerHTML=CT.map(function(c,i){return'<button data-c="'+i+'" class="'+(i==ct?'on':'')+'">'+c+'</button>'}).join('')}
+$('#cats').onclick=function(e){if(e.target.dataset.c){ct=+e.target.dataset.c;cats()}};
+
+
+function close(){dr=null;$('#form').style.display='none';$('#txt').value='';svg()}
+$('#cn').onclick=close;
+$('#sv').onclick=function(){var t=$('#txt').value.trim();if(!t||!dr)return;NT.push({la:dr.la,lo:dr.lo,c:CT[ct],t:t});try{localStorage.setItem('kh_nt',JSON.stringify(NT))}catch(x){}close();nl()};
+$('#nl').onclick=function(e){if(e.target.dataset.d!==undefined){NT.splice(+e.target.dataset.d,1);try{localStorage.setItem('kh_nt',JSON.stringify(NT))}catch(x){}nl();svg()}};
+svg();nl();prof();wt();
+var ZN=[['A','Zona Perlindungan','Hutan lebat & hulu sungai','--green','Konservasi flora-fauna dan tata air. Tanpa bangunan permanen; kunjungan hanya riset atau patroli berizin.'],['B','Zona Wisata Terbatas','Jalur resmi, pos & camp','--blue','Pendakian berkuota lewat jalur resmi. Usulan: berkemah hanya di pos bertanda camp spot, sampah dibawa turun.'],['C','Zona Penyangga','Sekitar Belangian & desa','--amber','Pemandu lokal, ojek, kuliner, homestay, dan produk hutan bukan kayu yang dikelola warga.']];
+$('#zn').innerHTML=ZN.map(function(z){return'<div class="card" style="--c:var('+z[3]+')"><div class="sh"><b>Zona '+z[0]+'</b><div>'+z[1]+'</div></div><div class="sb">'+z[4]+'<small>'+z[2]+'</small></div></div>'}).join('');
+var RM=[['1','Fase 1 · Data dasar','Petakan sebelum mengatur','--blue',['Ukur ulang jalur dan pos dengan GPS','Survei flora dan fauna sepanjang jalur','Catat kondisi sumber air dan titik rawan erosi']],['2','Fase 2 · Aturan bersama','Sepakati dan umumkan','--green',['Tetapkan kuota dan SOP bersama pengelola dan warga','Koordinasikan dengan pengelola kawasan dan pemilik lahan','Sepakati pembagian manfaat untuk warga']],['3','Fase 3 · Operasional','Kelola setiap hari','--amber',['Pemandu lokal terlatih dan briefing wajib','Sampah dicatat naik, dicek turun','Perawatan jalur, jembatan, dan shelter']],['4','Fase 4 · Pantau & pulihkan','Belajar dan perbaiki','--purple',['Tinjau indikator tiap tahun','Rehabilitasi titik rusak dengan jenis lokal','Perbarui kuota dan aturan sesuai hasil']]];
+$('#rm').innerHTML=RM.map(function(r,i){return'<details'+(i?'':' open')+' style="--c:var('+r[3]+')"><summary><span class="badge">'+r[0]+'</span><span>'+r[1]+'<div class="sub" style="font-weight:400">'+r[2]+'</div></span></summary><div class="in"><ul>'+r[4].map(function(t){return'<li>'+t+'</li>'}).join('')+'</ul></div></details>'}).join('');
+var IK=[['🌲','Tutupan hutan','--green','Dipantau lewat survei dan citra; target diisi pengelola.'],['💧','Kualitas air','--teal','Kejernihan dan kondisi sumber air di pos.'],['♻','Sampah','--amber','Sampah dibawa turun setara yang dibawa naik.'],['🛤','Kondisi jalur','--blue','Titik erosi dan kerusakan yang sudah dipulihkan.'],['🦜','Flora & fauna','--purple','Perjumpaan satwa kunci seperti burung haruai (kuau raja) dan jenis yang tercatat.'],['🤝','Manfaat warga','--rose','Warga terlibat sebagai pemandu dan penyedia jasa.']];
+$('#ik').innerHTML=IK.map(function(p){return'<div class="card" style="--c:var('+p[2]+')"><div style="font-size:22px">'+p[0]+'</div><b>'+p[1]+'</b><p>'+p[3]+'</p></div>'}).join('');
+var ML=[];try{ML=JSON.parse(localStorage.getItem('kh_ml')||'[]')}catch(e){}
+function dm(){var tp=0,ts=0,tr=0;ML.forEach(function(m){tp+=m.p;ts+=m.s;tr+=(m.r||0)});$('#msum').innerHTML=ML.length?'Kunjungan: <b>'+ML.length+'</b><br>Total pendaki: <b>'+tp+'</b><br>Sampah turun: <b>'+ts+' kg</b> ('+(ts/tp).toFixed(2)+' kg/pendaki)<br>Pemasukan warga: <b>Rp '+tr.toLocaleString('id-ID')+'</b>':'Belum ada data.';$('#mlog').innerHTML=ML.slice().reverse().slice(0,6).map(function(m){return'<div class="note">'+m.d+' · '+m.p+' orang · '+m.s+' kg · '+m.k+(m.r?' · Rp '+m.r.toLocaleString('id-ID'):'')+'</div>'}).join('')}
+$('#ma').onclick=function(){var p=+$('#mp').value||0;if(p<1)return;ML.push({d:$('#md').value||'tanpa tanggal',p:p,s:+$('#ms').value||0,k:$('#mk').value,r:+$('#mr').value||0});try{localStorage.setItem('kh_ml',JSON.stringify(ML))}catch(x){}dm()};
+dm();
+function osm(c){return'https://www.openstreetmap.org/?mlat='+c[0].toFixed(5)+'&mlon='+c[1].toFixed(5)+'#map=16/'+c[0].toFixed(5)+'/'+c[1].toFixed(5)}
+/* CUACA LIVE (Open-Meteo) */
+var wi=0,WX=null;
+function lap(e){return .65*(e-71)/100}
+function fm(n){return n==null?'—':n.toFixed(1).replace('.',',')}
+function wm(c){var m={0:['☀️','Cerah'],1:['🌤','Cerah berawan'],2:['⛅','Berawan sebagian'],3:['☁️','Mendung'],45:['🌫','Berkabut'],48:['🌫','Kabut beku'],51:['🌦','Gerimis ringan'],53:['🌦','Gerimis'],55:['🌦','Gerimis lebat'],61:['🌧','Hujan ringan'],63:['🌧','Hujan'],65:['🌧','Hujan lebat'],80:['🌦','Hujan lokal ringan'],81:['🌧','Hujan lokal'],82:['⛈','Hujan lokal lebat'],95:['⛈','Badai petir'],96:['⛈','Badai petir dan es'],99:['⛈','Badai petir lebat']};return m[c]||['⛅','Berawan sebagian']}
+WPT=PT.filter(function(p){return p[0]=='p'||p[3]=='Belangian trailhead'||p[3]=='Puncak Kahung'}).sort(function(a,b){return a[4]-b[4]});
+var SD=[['2026-10-09',30.5,22.2,30],['2026-10-10',30.6,22.4,15],['2026-10-11',30.3,22.3,10],['2026-10-12',30.6,22.6,10],['2026-10-13',30.3,22.2,10],['2026-10-14',30.3,22.3,0],['2026-10-15',30.4,22.8,0],['2026-10-16',30.6,22.8,10]];
+var SNAP={live:0,cur:{t:25.1,h:null,w:null,c:null,tp:25.1-lap(1456)},days:SD.map(function(d){return{d:d[0],c:null,hi:d[1],lo:d[2],pr:d[3]}}),pos:WPT.map(function(p){return{n:p[3],e:p[4],hi:SD.map(function(d){return d[1]-lap(p[4])}),lo:SD.map(function(d){return d[2]-lap(p[4])})}})};
+function wurl(){var a=WPT.map(pll);return'https://api.open-meteo.com/v1/forecast?latitude='+a.map(function(c){return c[0].toFixed(4)}).join(',')+'&longitude='+a.map(function(c){return c[1].toFixed(4)}).join(',')+'&elevation='+WPT.map(function(p){return p[4]}).join(',')+'&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=Asia%2FMakassar&forecast_days=8'}
+function loadWx(){$('#wst').textContent='Memuat data cuaca…';fetch(wurl()).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){var a=Array.isArray(j)?j:[j],b=a[0];
+WX={live:1,at:b.current.time,cur:{t:b.current.temperature_2m,h:b.current.relative_humidity_2m,w:b.current.wind_speed_10m,c:b.current.weather_code,tp:a[a.length-1].current.temperature_2m},days:b.daily.time.map(function(d,i){return{d:d,c:b.daily.weather_code[i],hi:b.daily.temperature_2m_max[i],lo:b.daily.temperature_2m_min[i],pr:b.daily.precipitation_probability_max[i],rs:b.daily.precipitation_sum[i]}}),pos:a.map(function(r,k){return{n:WPT[k][3],e:WPT[k][4],hi:r.daily.temperature_2m_max,lo:r.daily.temperature_2m_min}})};
+wi=Math.min(wi,WX.days.length-1);wx()}).catch(function(){WX=null;wx()})}
+function wx(){var W=WX||SNAP,c=W.cur,d=W.days[wi],w0=wm(c.c);
+var NC=[[w0[0],'Suhu sekarang',fm(c.t)+' °C',W.live?w0[1]:'Snapshot 9 Okt 2026','--blue'],['🏔','Suhu di puncak',fm(c.tp)+' °C',W.live?'1.456 mdpl (data model)':'Perkiraan 1.456 mdpl','--teal'],['🌧','Peluang hujan',(W.days[0].pr==null?'—':W.days[0].pr+'%'),'Hari ini','--amber'],['💨','Angin & lembap',c.w!=null?Math.round(c.w)+' km/j · '+c.h+'%':'—','Di titik awal','--rose']];
+$('#nowc').innerHTML=NC.map(function(s){return'<div class="card st" style="--c:var('+s[4]+')"><i>'+s[0]+'</i><small>'+s[1]+'</small><b>'+s[2]+'</b><span>'+s[3]+'</span></div>'}).join('');
+$('#fc').innerHTML=W.days.map(function(x,i){var dt=new Date(x.d+'T00:00:00'),ic=x.c!=null?wm(x.c)[0]:(x.pr>=50?'🌧':x.pr>=25?'🌦':x.pr>=10?'⛅':'☀️');return'<div class="card" data-i="'+i+'" style="cursor:pointer'+(i==wi?';outline:2px solid var(--blue)':'')+'"><b>'+dt.toLocaleDateString('id-ID',{weekday:'short'})+'</b><div class="sub">'+dt.toLocaleDateString('id-ID',{day:'numeric',month:'short'})+'</div><div style="font-size:26px">'+ic+'</div><div><b>'+Math.round(x.hi)+'°</b> / '+Math.round(x.lo)+'°</div><div class="sub">Hujan '+(x.pr==null?'—':x.pr+'%')+'</div></div>'}).join('');
+var a=d.c>=95?'Ada risiko badai petir: hindari punggungan dan puncak, tunda pendakian.':d.pr>=50?'Peluang hujan tinggi: tunda atau siapkan rencana cadangan, sungai bisa naik cepat.':d.pr>=25?'Ada peluang hujan: bawa jas hujan dan cek debit sungai sebelum menyeberang.':'Peluang hujan rendah, tetap bawa jas hujan karena cuaca pegunungan cepat berubah.';
+$('#adv').innerHTML='<b>'+new Date(d.d+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'})+':</b> '+a+' <span class="sub">(panduan umum)</span>';
+$('#et').innerHTML='<tr><th>Titik</th><th>Tinggi</th><th>Siang</th><th>Malam</th></tr>'+W.pos.map(function(p){return'<tr><td>'+p.n+'</td><td>'+p.e.toLocaleString('id-ID')+' m</td><td>'+fm(p.hi[wi])+' °C</td><td>'+fm(p.lo[wi])+' °C</td></tr>'}).join('');
+$('#wst').innerHTML=W.live?'🟢 Live Open-Meteo · diperbarui '+String(W.at).replace('T',' ')+' WITA':'⚪ Tidak bisa memuat data live — menampilkan snapshot 9 Okt 2026';
+S[5]=['⛅','Suhu sekarang',fm(c.t)+' °C','Puncak ≈'+Math.round(c.tp)+' °C'+(W.live?' · live':' · snapshot'),'--rose'];rs()}
+$('#fc').onclick=function(e){var c=e.target.closest('[data-i]');if(c){wi=+c.dataset.i;wx()}};
+$('#wrf').onclick=loadWx;initMap();svg();wx();loadWx();setInterval(loadWx,900000);
+/* DATA KAWASAN */
+var LU=[['🏞','Tahura Sultan Adam','112.000 ha','Kawasan induk (Keppres) · ANTARA','--green'],['🌐','Geopark Meratus','3.645 km²','≈364.501 ha · KNGI 2018 (SuaraNTB)','--blue'],['👥','Penduduk Belangian','±350 jiwa','Desa gerbang Kahung · ANTARA','--amber'],['🥾','Hutan Kahung dari desa','5,8 km','Motor atau jalan kaki · Meratus Geopark','--purple'],['📏','Luas hutan Kahung','Belum ada','Perlu SK atau pengukuran GIS','--rose'],['⛰','Tinggi puncak','1.456 m','Geopark Meratus; peta 2020 mencatat 1.285 m','--teal']];
+$('#lu').innerHTML=LU.map(function(s){return'<div class="card st" style="--c:var('+s[4]+')"><i>'+s[0]+'</i><small>'+s[1]+'</small><b>'+s[2]+'</b><span>'+s[3]+'</span></div>'}).join('');
+var TC=[['Hutan',38811,32.89,70042,59.40],['Pertanian',23716,20.10,24979,21.18],['Semak belukar',22072,18.70,3095,2.62],['Lahan terbuka',14187,12.02,4471,3.79],['Permukiman',10664,9.04,7956,6.74],['Tubuh air',6179,5.23,6106,5.17],['Awan (tak terklasifikasi)',2340,1.98,1255,1.06]];
+function fh(n){return n.toLocaleString('id-ID')}function fp(n){return n.toFixed(2).replace('.',',')}
+$('#tc').innerHTML=TC.map(function(r){return'<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px"><b>'+r[0]+'</b><span class="sub">'+fh(r[1])+' ha ('+fp(r[2])+'%) → '+fh(r[3])+' ha ('+fp(r[4])+'%)</span></div><div class="bar" style="margin-top:4px"><div style="width:'+r[2]+'%;background:var(--amber)"></div></div><div class="bar" style="margin-top:3px"><div style="width:'+r[4]+'%;background:var(--green)"></div></div></div>'}).join('');
+function chips(a){return a.map(function(x){return'<span class="ch">'+x[0]+' <sup>'+x[1]+'</sup></span>'}).join('')}
+$('#fl').innerHTML=chips([['Binuang laki','G'],['Meranti','G'],['Mawai','G'],['Beringin (banyan)','G'],['Rawali','G'],['Anggrek hutan','G,P'],['Tumbuhan herba','G'],['Pohon raksasa, diameter ±3 m','P']]);
+var FN=[['Burung haruai (kuau raja)','A','Great_argus','🦚','Argusianus argus · “merak hutan Kahung”'],['Beruang madu','P','Sun_bear','🐻','Helarctos malayanus'],['Rusa','P','Sambar_deer','🦌','Gambar: rusa sambar (jenis diperkirakan)'],['Monyet hitam (“hirangan”)','G',null,'🐒','Jenis belum dipastikan'],['Monyet','P',null,'🐒','Jenis belum dipastikan'],['Burung lainnya','P',null,'🐦','Perlu survei'],['Katak','G',null,'🐸','Beberapa jenis'],['Ular','G',null,'🐍','Beberapa jenis'],['Cacing kepala martil','G','Bipalium','🐛','Genus Bipalium (ilustrasi)']];
+$('#fa').innerHTML=FN.map(function(f,i){return'<div class="an"><div class="im" id="im'+i+'">'+f[3]+'</div><div class="tx"><b>'+f[0]+'</b> <sup>'+f[1]+'</sup><small>'+f[4]+'</small><small id="cr'+i+'"></small></div></div>'}).join('');
+FN.forEach(function(f,i){if(!f[2])return;fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+f[2]).then(function(r){return r.json()}).then(function(j){if(!j.thumbnail)return;var im=new Image();im.alt=f[0];im.loading='lazy';im.onload=function(){var b=$('#im'+i);b.innerHTML='';b.appendChild(im);$('#cr'+i).innerHTML='<a href="'+j.content_urls.desktop.page+'" target="_blank" rel="noopener" style="color:var(--blue)">Foto: Wikipedia ↗</a>'};im.src=j.thumbnail.source}).catch(function(){})});
+var EK=[['🏘','Desa Wisata Belangian','--green','Ditetapkan desa wisata 2018–2019 (sumber berbeda) dan menjadi geosite Geopark Meratus, yang diakui UNESCO Global Geopark pada 2025 (ANTARA).'],['🎫','Tarif tercatat','--blue','Kapal Dermaga Riam–Belangian Rp50.000 pulang-pergi. Ojek basecamp–Pintu Rimba Rp100.000 pulang-pergi (info lokal). Simaksi Rp10.000 per orang (info lokal). Homestay Rp100.000 per malam; gratis untuk Mapala (2024).'],['🛵','Ojek wisata','--amber','Puluhan warga menjadi ojek wisata; hasil borongan lewat BUMDes dibagi ke semua yang bertugas. Tercatat 42 warga terlibat pada satu kegiatan pemda (2024).'],['🏠','Homestay','--purple','Rilis.id mencatat 13 homestay. Situs Pemkab Banjar menyebut belum ada homestay komersial aktif, jadi angka berbeda antar sumber.'],['🧵','UMKM warga','--rose','Kerajinan ecoprint dan sasirangan dijual ke pengunjung, dengan bagi hasil bersama BUMDes (Rilis.id).'],['🛖','Sarana jalur','--teal','Shelter di Pos 1, 2, dan 3 dibangun 2022; kunjungan wisatawan disebut terus meningkat (Rilis.id).']];
+$('#ek').innerHTML=EK.map(function(p){return'<div class="card" style="--c:var('+p[2]+')"><div style="font-size:22px">'+p[0]+'</div><b>'+p[1]+'</b><p>'+p[3]+'</p></div>'}).join('');
+function sim(){var v=+$('#simv').value||0,h=(+$('#simh').value||0)/100,m=+$('#simm').value||0,t=+$('#simt').value||0,k=+$('#simk').value||0,o=+$('#simo').value||0,bt=+$('#simb').value||0,a=v*t,b=v*h*m*k,c=v*o,d=v*bt;function rp(n){return'Rp '+Math.round(n).toLocaleString('id-ID')}
+$('#sr').innerHTML='Simaksi: <b>'+rp(a)+'</b>/bulan<br>Homestay: <b>'+rp(b)+'</b>/bulan<br>Ojek basecamp–Pintu Rimba: <b>'+rp(c)+'</b>/bulan<br>Kapal Dermaga Riam: <b>'+rp(d)+'</b>/bulan<hr style="border:0;border-top:1px solid var(--line)">Total kotor: <b>'+rp(a+b+c+d)+'</b>/bulan<br>≈ <b>'+rp((a+b+c+d)*12)+'</b>/tahun'}
+['simv','simh','simm','simt','simk','simo','simb'].forEach(function(i){$('#'+i).oninput=sim});sim();
+var SR=[['Koran Jakarta (ANTARA) — Hutan Kahung dihuni burung haruai, Jun 2026','https://koran-jakarta.com/2026-06-07/keragaman-hayati-hutan-kahung-dihuni-burung-merak'],['RRI — Haruai Bird, King of Kahung Forest, Jun 2026','https://rri.co.id/en/environment/2476028/haruai-bird-king-of-kahung-forest-in-south-kalimantan'],['Meratus Geopark — Kahung Tropical Rain Forest','https://meratusgeopark.org/kahung-tropical-rain-forest/?lang=en'],['ANTARA — Warisan purba Lembah Kahung','https://m.antaranews.com/amp/berita/5605421/warisan-purba-lembah-kahung'],['ANTARA — Geopark Meratus menjaga asa (ojek wisata)','https://kalteng.antaranews.com/berita/712495/geopark-meratus-menjaga-asa-kemuliaan-bumi-dan-kesejahteraan-makhluk'],['ANTARA — Menghargai masa lalu (Belangian, 350 jiwa)','https://kupang.antaranews.com/berita/100029/artikel-menghargai-masa-lalu-menggenggam-masa-depan'],['ANTARA — Tahura Sultan Adam 112.000 ha','https://kalsel.antaranews.com/berita/343789/kawasan-geopark-meratus-di-kalsel-jadi-spot-paralayang-dan-gantole'],['Rilis.id — Menjaga benteng kehidupan di Lembah Kahung','https://rilis.id/Kolom/Berita/Menjaga-Benteng-Kehidupan-di-Lembah-Kahung-Geopark-Meratus-8yaAj3o'],['SuaraNTB — Belangian, desa wisata','https://suarantb.com/2024/08/22/belangian-desa-wisata-yang-bergantung-dari-hutan-meratus/'],['Koran Kaltara — Kahung surga ekowisata','https://korankaltara.com/meratus-geopark-kahung-surga-ekowisata-di-jantung-borneo'],['Detik — Petualangan menuju Air Terjun Lembah Kahung','https://www.detik.com/kalimantan/wisata/d-8537810/petualangan-menuju-air-terjun-lembah-kahung-surga-tersembunyi-di-banjar'],['SI-PRASWITA Pemkab Banjar — Desa Wisata Belangian','https://si-praswita.banjarkab.go.id/detail-destinasi2.php?id=574'],['Fuady dkk. (2018) — Perubahan penutupan lahan Tahura Sultan Adam','https://ppjp.ulm.ac.id/journals/index.php/jss/article/view/482']];
+$('#src').innerHTML=SR.map(function(s){return'<li><a href="'+s[1]+'" target="_blank" rel="noopener" style="color:var(--blue)">'+s[0]+' ↗</a></li>'}).join('');
+</script>
+</body>
+</html>
